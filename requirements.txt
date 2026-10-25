@@ -1,0 +1,6 @@
+tensorflow
+config
+kagglehub
+keras
+pandas
+scikit-learn
