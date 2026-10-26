@@ -15,14 +15,31 @@ from keras.layers import Dense, Dropout, Activation
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-'''IMDB database'''
+"""
+    Note from Zoey: Current accuracy is 0.8567
+"""
+
+'''
+Grab the IMDB database
+
+Parameters: 
+    - None
+Returns: 
+    - A DataFrame containing the IMDB dataset.
+'''
 def load_database():
     return pd.read_csv("IMDB Dataset.csv")
+
 '''
 Parameters: 
     - df: The DataFrame containing the dataset.
     - dataset: The name of the dataset (e.g., 'imdb').
 Returns: 
+    - x_train: Training data features.
+    - y_train: Training data labels.
+    - x_test: Testing data features.
+    - y_test: Testing data labels.
+    - vectorizer: The TextVectorization instance used for preprocessing.
 '''
 def prepare_data(df, dataset):
     # Grab the configuration details from config.py
@@ -58,45 +75,74 @@ def prepare_data(df, dataset):
 
     # Return
     return x_train, y_train, x_test, y_test, vectorizer
+
+'''
+Define the Bidirectional LSTM model.
+Parameters: 
+    - dataset: The name of the dataset (e.g., 'imdb').
+Returns:
+    - A compiled Keras Sequential model with a Bidirectional LSTM architecture.
+'''
 def bilstm(dataset):
-    max_len = config.word_max_len[dataset]
+    '''
+    Note from Zoey: Yang et al. 
+     Bidirectional LSTM (Bi-LSTM) consists of a
+128-dimension word embedding layer, a bidirectional layer
+that wraps 64 LSTM units, a dropout of 0.3, and a fully connected layer for classification
+    '''
+    # Grab the configuration details from config.py. This was provided by Yang et al. 
+    # max_len = config.word_max_len[dataset] # input_length is deprecated in Keras Embedding
     num_classes = config.num_classes[dataset]
     loss = config.loss[dataset]
     activation = config.activation[dataset]
-    embedding_dims = config.bdLSTM_embedding_dims[dataset]
+    embedding_dims = config.bdLSTM_embedding_dims[dataset] # = 128
     num_words = config.num_words[dataset]
+
+    # Define Hyperparameters based on Yang et al. 
+    lstm_units = 64
+    dropout = 0.3 
 
     print('Build word_bdlstm model...')
     model = Sequential()
 
-    model.add(Embedding(num_words, embedding_dims, input_length=max_len))
-    model.add(Bidirectional(LSTM(64)))  # 64 / LSTM-2:128 / LSTM-3: 32
-    model.add(Dropout(0.5))
+    model.add(Embedding(num_words, embedding_dims))
+    model.add(Bidirectional(LSTM(lstm_units)))  # 64 / LSTM-2:128 / LSTM-3: 32
+    model.add(Dropout(dropout))
     model.add(Dense(num_classes, activation=activation))
 
     # try using different optimizers and different optimizer configs
     model.compile('adam', loss, metrics=['accuracy'])
 
     return model
-def main():
-    dataset = 'imdb'
-    df = load_database()
-    x_train, y_train, x_test, y_test, vectorizer = prepare_data(df, dataset)
 
+
+def main():
+    # 1. Set the database to imdb. 
+    dataset = 'imdb'
+    # 2. Load the IMDB dataset into a DataFrame.
+    df = load_database()
+    # 3. Prepare the data for the model.
+    x_train, y_train, x_test, y_test, vectorizer = prepare_data(df, dataset)
+    # 4. Build the Bidirectional LSTM model.
     model = bilstm(dataset)
+    # 5. Print the model summary.
     model.summary()
 
+    # 6. Train the model.
+    print("\033[1;32mTraining the Bidirectional LSTM model...\033[0m")
     model.fit(
         x_train, y_train,
-        batch_size=config.bdLSTM_batch_size[dataset],
-        epochs=config.bdLSTM_epochs[dataset],
+        batch_size=config.bdLSTM_batch_size[dataset], # = 32
+        epochs=config.bdLSTM_epochs[dataset], # = 6
         validation_split=0.1,
     )
 
-    # Evaluate the model on the test set
+    # 7. Evaluate the model on the test set
+    print("\033[1;32mEvaluating the Bidirectional LSTM model on the test set...\033[0m")
     loss, acc = model.evaluate(x_test, y_test)
     print(f"Test accuracy: {acc:.4f}")
 
+    # 8. Save the trained model
     model.save("bilstm_imdb.keras")
 
 
