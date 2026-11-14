@@ -1,18 +1,11 @@
 '''
 Zoey Chappell and Jonah Whitney
-Based on https://github.com/AdvAttack/BU-SPO/blob/main/bigram.py
-NOTE: this is currently directly copied from the link. Will edit later. 
-
+Based on https://github.com/AdvAttack/BU-SPO
 '''
-
-import os
 import re
 import pandas as pd
-from config import config
 import numpy as np
 from sklearn.model_selection import train_test_split
-# Was keras.utils.np_utils
-from keras.utils import to_categorical
 
 '''
 This function, grabbed from Yang et al.
@@ -30,33 +23,6 @@ def rm_tags(text):
     re_tag = re.compile(r'<[^>]+>')
     return re_tag.sub('', text)
 
-'''original function'''
-def read_imdb_files(filetype):
-    """
-    filetype: 'train' or 'test'
-    """
-
-    # [0,1] means positive，[1,0] means negative
-    # One hot labels
-    all_labels = []
-    for _ in range(12500):
-        all_labels.append([0, 1])
-    for _ in range(12500):
-        all_labels.append([1, 0])
-
-    all_texts = []
-    file_list = []
-    path = r'./data_set/aclImdb/'
-    pos_path = path + filetype + '/pos/'
-    for file in os.listdir(pos_path):
-        file_list.append(pos_path + file)
-    neg_path = path + filetype + '/neg/'
-    for file in os.listdir(neg_path):
-        file_list.append(neg_path + file)
-    for file_name in file_list:
-        with open(file_name, 'r', encoding='utf-8') as f:
-            all_texts.append(rm_tags(" ".join(f.readlines())))
-    return all_texts, all_labels
 '''
 Updated function to read the IMDB dataset from a CSV file instead of individual text files.
 
@@ -84,7 +50,19 @@ def updated_read_imdb_files():
 
     return all_text, all_labels
 
+'''
+Updated function. Splits the IMDB dataset into training and testing. 
 
+Parameters: 
+    - test_size: Default = 0.5.The proportion of the dataset to include in the test split.
+    - random_state: Default = 42. Reproducible results
+    
+Returns:
+    - train_texts: A list of training text reviews.
+    - train_labels: A numpy array of one-hot encoded labels for the training reviews.
+    - test_texts: A list of testing text reviews.
+    - test_labels: A numpy array of one-hot encoded labels for the testing reviews.
+'''
 def split_imdb_files(test_size = 0.5, random_state = 42):
     print('Processing IMDB dataset')
 
