@@ -10,7 +10,7 @@ import string
 import numpy as np
 from nltk import ngrams
 from collections import Counter
-from read_files import split_imdb_files, split_yahoo_csv_files, split_agnews_files
+from read_files import split_imdb_files
 import spacy
 
 nlp = spacy.load('en_core_web_sm')
@@ -19,10 +19,7 @@ dataset = "imdb"
 
 if dataset == 'imdb':
     train_texts, train_labels, test_texts, test_labels = split_imdb_files()
-elif dataset == 'agnews':
-    train_texts, train_labels, test_texts, test_labels = split_agnews_files()
-elif dataset == 'yahoo':
-    train_texts, train_labels, test_texts, test_labels = split_yahoo_csv_files()
+
 
 num_train = len(train_texts)
 num_test = len(test_texts)
@@ -75,7 +72,8 @@ bigram_syn = [item for item in bigram_syn if item[2] != []]  # remove those bigr
 print('The number of bigrams that have synonyms different from itself: ', len(bigram_syn))
 bigram_syn = np.array(bigram_syn, dtype=object)
 np.save('bigram/bigram_syn_imdb.npy', bigram_syn)
-a = list(np.load('bigram/bigram_syn_imdb.npy'))
+# Added allow_pickle=True to avoid error: "ValueError: Object arrays cannot be loaded when allow_pickle=False"
+a = list(np.load('bigram/bigram_syn_imdb.npy', allow_pickle=True))
 a_list = []
 for i in range(len(a)):
     a_list.append(list(a[i]))
