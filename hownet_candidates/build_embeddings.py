@@ -1,6 +1,11 @@
+'''
+Zoey Chappell and Jonah Whitney
+This file is grabbed from Yang et al. 
 
+Needs to be updated to read data from CSV. 
+'''
 import numpy as np
-from keras.preprocessing.text import Tokenizer
+from tf_keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 import pickle
 
