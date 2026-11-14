@@ -6,3 +6,4 @@ pandas
 scikit-learn
 spacy
 # Note: make sure to run python -m spacy download en_core_web_sm before running adversarial_examples.py
+tf_keras
