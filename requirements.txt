@@ -7,3 +7,11 @@ scikit-learn
 spacy
 # Note: make sure to run python -m spacy download en_core_web_sm before running adversarial_examples.py
 tf_keras
+
+'''
+Need to download 
+https://www.kaggle.com/datasets/takuok/glove840b300dtxt
+5.65 GB
+
+Place in hownet_candidates
+'''
