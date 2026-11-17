@@ -1,3 +1,8 @@
+'''
+Zoey Chappell and Jonah Whitney
+Based on Yang et al. 
+No necessary changes needed.
+'''
 import pickle
 f=open('aux_files/dataset_50000.pkl','rb')
 dataset=pickle.load(f)
