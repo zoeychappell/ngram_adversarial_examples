@@ -1,26 +1,29 @@
 '''
 Zoey Chappell and Jonah Whitney
-This file is grabbed from Yang et al. 
-
-Needs to be updated to read data from CSV. 
+Based on Yang et al. 
+Completed the necessary changes. 
 '''
 import numpy as np
-from tf_keras.preprocessing.text import Tokenizer
-from keras.preprocessing.sequence import pad_sequences
+# commented out
+# from tf_keras.preprocessing.text import Tokenizer
+# commented out
+# from keras.preprocessing.sequence import pad_sequences
 import pickle
 
 import os
 #import nltk
-import re
-from collections import Counter
+# commented out
+# import re
+# commented out
+# from collections import Counter
 
 
 import data_utils_utf8
 import glove_utils
-
-IMDB_PATH = 'aclImdb'
+# Changed to the csv file path
+IMDB_PATH = 'IMDB_Dataset.csv'
 MAX_VOCAB_SIZE = 50000
-GLOVE_PATH = 'glove.840B.300d.txt'
+GLOVE_PATH = 'hownet_candidates/glove.840B.300d/glove.840B.300d.txt'
 
 if not os.path.exists('aux_files'):
 	os.mkdir('aux_files')

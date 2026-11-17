@@ -1,9 +1,15 @@
+'''
+Zoey Chappell and Jonah Whitney
+Based on Yang et al. 
+Completed the necessary changes. 
+'''
 import numpy as np
 import pickle
 
 def loadGloveModel(gloveFile):
     print ("Loading Glove Model")
-    f = open(gloveFile,'r')
+    # Added encoding='utf-8' to avoid UnicodeDecodeError
+    f = open(gloveFile,'r', encoding='utf-8')
     model = {}
     for line in f:
         row = line.strip().split(' ')

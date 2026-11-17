@@ -1,28 +1,52 @@
+'''
+Zoey Chappell and Jonah Whitney
+Based on Yang et al. 
+Completed the necessary changes. 
+'''
 import os
 # import nltk
 import re
 from collections import Counter
 # from nltk.corpus import stopwords
-from keras.preprocessing.text import Tokenizer
-
+# Changed to tf_keras
+import pandas
+from tf_keras.preprocessing.text import Tokenizer
 import pickle as pickle
 
+# New imports 
+from sklearn.model_selection import train_test_split
+import pandas as pd
 
-def rm_tags(text):
-    re_tag = re.compile(r'<[^>]+>')
-    return re_tag.sub('', text)
-
+import read_files as read_files
+#from read_files import rm_tags, updated_read_imdb_files, split_imdb_files
 
 class IMDBDataset(object):
-    def __init__(self, path='aclImdb', max_vocab_size=None):
+    # Changed the path to point to the csv file
+    def __init__(self, path='IMDB_Dataset.csv', 
+                 max_vocab_size=None, 
+                 test_size = 0.5, 
+                 seed = 42
+    ):
         self.path = path
-        self.train_path = path + '/train'
-        self.test_path = path + '/test'
-        self.vocab_path = path + '/imdb.vocab'
+
+        # commented out
+        # self.train_path = path + '/train'
+        # self.test_path = path + '/test'
+        # self.vocab_path = path + '/imdb.vocab'
+
         self.max_vocab_size = max_vocab_size
-        self._read_vocab()
-        train_text, self.train_y = self.read_text(self.train_path)
-        test_text, self.test_y = self.read_text(self.test_path)
+        # Commented out - we don't have a imdb.vocab file currently
+        # self._read_vocab()
+
+        # Commented out to replace with sklearn 
+        #train_text, self.train_y = self.read_text(self.train_path)
+        #test_text, self.test_y = self.read_text(self.test_path)
+        train_text, train_labels, test_text, test_labels = read_files.split_imdb_files()
+
+        # The rest of the pipeline expects integer labels (pos = 1, neg = 0),
+        # so convert the one-hot arrays: [0, 1] -> 1, [1, 0] -> 0
+        self.train_y = train_labels.argmax(axis=1).tolist()
+        self.test_y = test_labels.argmax(axis=1).tolist()
         self.train_text = train_text
         self.test_text = test_text
         print('tokenizing...')
@@ -92,10 +116,12 @@ class IMDBDataset(object):
         # neg_list = [open(x, 'r').read().lower() for x in neg_files]
         for file_name in pos_files:
             with open(file_name, 'r', encoding='utf-8') as f:
-                pos_list.append(rm_tags(" ".join(f.readlines())))
+                # change but we prob wont use
+                pos_list.append(read_files.rm_tags(" ".join(f.readlines())))
         for file_name in neg_files:
             with open(file_name, 'r', encoding='utf-8') as f:
-                neg_list.append(rm_tags(" ".join(f.readlines())))
+                # changed but we prob won't use
+                neg_list.append(read_files.rm_tags(" ".join(f.readlines())))
         data_list = pos_list + neg_list
         labels_list = [1] * len(pos_list) + [0] * len(neg_list)
         return data_list, labels_list
