@@ -2,10 +2,10 @@
 import spacy
 import os
 import re
-from keras.preprocessing import sequence
-from keras.preprocessing.text import Tokenizer
+from tf_keras.preprocessing import sequence
+from tf_keras.preprocessing.text import Tokenizer
 import numpy as np
-from read_files import read_imdb_files, read_yahoo_files, read_yahoo_csv_files, read_agnews_files
+from hownet_candidates.read_files import read_imdb_files
 from config import config
 
 nlp = spacy.load('en_core_web_sm')
@@ -15,12 +15,12 @@ def get_tokenizer(dataset):
     texts = None
     if dataset == 'imdb':
         texts, _ = read_imdb_files('train')
-    elif dataset == 'yahoo':
-        texts, _, _ = read_yahoo_files()
-    elif dataset == 'yahoo_csv':
-        texts, _, _ = read_yahoo_csv_files('train')
-    elif dataset == 'agnews':
-        texts, _, _ = read_agnews_files('train')
+    # elif dataset == 'yahoo':
+    #     texts, _, _ = read_yahoo_files()
+    # elif dataset == 'yahoo_csv':
+    #     texts, _, _ = read_yahoo_csv_files('train')
+    # elif dataset == 'agnews':
+    #     texts, _, _ = read_agnews_files('train')
     tokenizer = Tokenizer(num_words=config.num_words[dataset])
     tokenizer.fit_on_texts(texts)
     return tokenizer
