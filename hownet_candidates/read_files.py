@@ -33,7 +33,7 @@ Outputs:
     - all_labels: A numpy array of one-hot encoded labels 
         corresponding to the reviews.
 '''
-def updated_read_imdb_files():
+def read_imdb_files():
     path = 'IMDB_Dataset.csv'
     # Use pandas to read the CSV file
     df = pd.read_csv(path)
@@ -66,7 +66,7 @@ Returns:
 def split_imdb_files(test_size = 0.5, random_state = 42):
     print('Processing IMDB dataset')
 
-    texts, labels = updated_read_imdb_files()
+    texts, labels = read_imdb_files()
     # Split into test and train
     # test_size = 0.5 mirrors original split
     # Random state to reproduce results
