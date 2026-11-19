@@ -33,22 +33,19 @@ Outputs:
     - all_labels: A numpy array of one-hot encoded labels 
         corresponding to the reviews.
 '''
-def read_imdb_files():
-    path = 'IMDB_Dataset.csv'
-    # Use pandas to read the CSV file
-    df = pd.read_csv(path)
-    all_text = []
-    # Grab all the text reviews
-    for text in df['review']:
-        all_text.append(rm_tags(text))
+_split = None
 
-    # Replicates the one hot encoding pattern from the original
-    labels_map = {'positive': [0, 1], 'negative': [1, 0]}
-
-    # Grab all the labels: 
-    all_labels = np.array([labels_map[sentiment] for sentiment in df['sentiment']], dtype='float32')
-
-    return all_text, all_labels
+def read_imdb_files(filetype):
+    global _split
+    if _split is None:
+        df = pd.read_csv('IMDB_Dataset.csv')
+        texts = df['review'].astype(str).str.replace('<br />', ' ', regex=False).values
+        labels = (df['sentiment'] == 'positive').astype(int).values
+        _split = train_test_split(texts, labels, test_size=0.5, random_state=42, stratify=labels)
+    x_tr, x_te, y_tr, y_te = _split
+    if filetype == 'train':
+        return list(x_tr), np.eye(2, dtype='float32')[y_tr]
+    return list(x_te), np.eye(2, dtype='float32')[y_te]
 
 '''
 Updated function. Splits the IMDB dataset into training and testing. 
@@ -63,21 +60,10 @@ Returns:
     - test_texts: A list of testing text reviews.
     - test_labels: A numpy array of one-hot encoded labels for the testing reviews.
 '''
-def split_imdb_files(test_size = 0.5, random_state = 42):
+def split_imdb_files():
     print('Processing IMDB dataset')
-
-    texts, labels = read_imdb_files()
-    # Split into test and train
-    # test_size = 0.5 mirrors original split
-    # Random state to reproduce results
-    # stratify=labels.argmax(axis=1) to keep pos/neg balanced
-    train_texts, test_texts, train_labels, test_labels = train_test_split(
-        texts, labels, 
-        test_size=test_size, 
-        random_state=random_state, 
-        stratify=labels.argmax(axis=1)
-    )
-
+    train_texts, train_labels = read_imdb_files('train')
+    test_texts, test_labels = read_imdb_files('test')
     return train_texts, train_labels, test_texts, test_labels
 
 if __name__ == '__main__':
