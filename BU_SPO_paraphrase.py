@@ -94,19 +94,9 @@ def vsm_similarity(doc, original, synonym):
 
 
 def USE_similarity(input, adv_text):
-    with tf.Session() as session:
-        session.run([tf.global_variables_initializer(), tf.tables_initializer()])
-        input_embed = session.run(USE_model([input]))
-        adv_embed = session.run(USE_model([adv_text]))
-
-    # input_embed = USE_model([input])
-    input_embed_array = np.array(input_embed)
-    # adv_embed = USE_model([adv_text])
-    adv_embed_array = np.array(adv_embed)
-    # USE_score = tf.multiply(input_embed, adv_embed)
-    USE_score = np.inner(input_embed_array, adv_embed_array)
-
-    # USE_score = np.inner(input_embed.numpy(), adv_embed.numpy())
+    input_embed = USE_model([input]).numpy()
+    adv_embed = USE_model([adv_text]).numpy()
+    USE_score = np.inner(input_embed, adv_embed)
     return USE_score[0][0]
 
 '''

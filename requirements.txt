@@ -7,11 +7,26 @@ scikit-learn
 spacy
 # Note: make sure to run python -m spacy download en_core_web_sm before running adversarial_examples.py
 tf_keras
-
+attrs
+tensorflow-hub
+OpenHowNet
+"setuptools>81"
 '''
 Need to download 
 https://www.kaggle.com/datasets/takuok/glove840b300dtxt
 5.65 GB
 
 Place in hownet_candidates
+'''
+
+'''
+need to download
+https://github.com/stanfordnlp/GloVe -> glove.6B.zip
+and put .txt in project root
+
+'''
+
+'''
+Run the command: 
+$envPYTHONUTF8="1"
 '''

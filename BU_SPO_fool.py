@@ -43,7 +43,7 @@ parser.add_argument('--clean_samples_cap',
 parser.add_argument('-m', '--model',
                     help='The model of text classifier',
                     choices=['word_cnn', 'char_cnn', 'word_lstm', 'word_bdlstm'],
-                    default='word_lstm')
+                    default='word_bdlstm')
 parser.add_argument('-d', '--dataset',
                     help='Data set',
                     # changed choices and default to IMDB instead of AG News

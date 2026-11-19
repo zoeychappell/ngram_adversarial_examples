@@ -1,5 +1,6 @@
 import sys
 # import keras
+from annotated_types import doc
 import spacy
 import numpy as np
 import tensorflow as tf
@@ -134,19 +135,31 @@ def adversarial_paraphrase(input_text, true_y, grad_guide, tokenizer, dataset, d
 
     doc = nlp(input_text)
 
+    # # PWWS
+    # position_word_list, word_saliency_list = evaluate_word_saliency(doc, grad_guide, tokenizer, true_y, dataset, level)
+    # USE_score, perturbed_text, sub_word, sub_rate, NE_rate, bigram_rate, change_tuple_list = PWWS(doc,
+    #                                                                      true_y,
+    #                                                                      dataset,
+    #                                                                      dataset_dict,
+    #                                                                      word_candidate,
+    #                                                                      word_saliency_list=word_saliency_list,
+    #                                                                      heuristic_fn=heuristic_fn,
+    #                                                                      halt_condition_fn=halt_condition_fn,
+    #                                                                      origin_perturbed_vector_fn=origin_perturbed_vector_fn,
+    #                                                                      delta_P_fn=delta_P_fn,
+    #                                                                      verbose=verbose)
+
     # PWWS
     position_word_list, word_saliency_list = evaluate_word_saliency(doc, grad_guide, tokenizer, true_y, dataset, level)
-    USE_score, perturbed_text, sub_word, sub_rate, NE_rate, bigram_rate, change_tuple_list = PWWS(doc,
-                                                                         true_y,
-                                                                         dataset,
-                                                                         dataset_dict,
-                                                                         word_candidate,
-                                                                         word_saliency_list=word_saliency_list,
-                                                                         heuristic_fn=heuristic_fn,
-                                                                         halt_condition_fn=halt_condition_fn,
-                                                                         origin_perturbed_vector_fn=origin_perturbed_vector_fn,
-                                                                         delta_P_fn=delta_P_fn,
-                                                                         verbose=verbose)
+    USE_score, perturbed_text, sub_word, sub_rate, NE_rate, change_tuple_list = PWWS(
+        doc,
+        true_y,
+        dataset,
+        word_saliency_list=word_saliency_list,
+        heuristic_fn=heuristic_fn,
+        halt_condition_fn=halt_condition_fn,
+        verbose=verbose)
+    bigram_rate = 0
 
     # print("perturbed_text after perturb_text:", perturbed_text)
     origin_vector = perturbed_vector = None

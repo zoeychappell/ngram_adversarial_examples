@@ -8,9 +8,22 @@ import numpy as np
 from hownet_candidates.read_files import read_imdb_files
 from config import config
 
+# adding
+from keras.layers import TextVectorization
+
 nlp = spacy.load('en_core_web_sm')
 
+class VectorizerTokenizer:
+    '''Stand-in for Keras Tokenizer, backed by the same TextVectorization used in bilstm.py'''
+    def __init__(self, train_texts, dataset):
+        self.vec = TextVectorization(max_tokens=config.num_words[dataset],
+                                     output_sequence_length=config.word_max_len[dataset])
+        self.vec.adapt(np.array(train_texts))
 
+    def texts_to_sequences(self, texts):
+        arr = self.vec(np.array(texts)).numpy()
+        # drop trailing padding zeros so pad_sequences can re-pad
+        return [list(r[:np.flatnonzero(r)[-1] + 1]) if r.any() else [] for r in arr]
 def get_tokenizer(dataset):
     texts = None
     if dataset == 'imdb':
@@ -21,9 +34,7 @@ def get_tokenizer(dataset):
     #     texts, _, _ = read_yahoo_csv_files('train')
     # elif dataset == 'agnews':
     #     texts, _, _ = read_agnews_files('train')
-    tokenizer = Tokenizer(num_words=config.num_words[dataset])
-    tokenizer.fit_on_texts(texts)
-    return tokenizer
+    return VectorizerTokenizer(texts, dataset)
 
 
 def word_process(train_texts, train_labels, test_texts, test_labels, dataset):
