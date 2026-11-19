@@ -7,7 +7,7 @@ import argparse
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import numpy as np
-from read_files import split_imdb_files, split_yahoo_files, split_yahoo_csv_files, split_agnews_files
+from hownet_candidates.read_files import split_imdb_files
 from word_level_process import word_process, get_tokenizer
 from char_level_process import char_process
 from neural_networks import word_cnn, char_cnn, bd_lstm, lstm
@@ -18,15 +18,21 @@ import time
 from unbuffered import Unbuffered
 # HowNet
 import pickle
-with open('hownet_candidates/AGNews/dataset_50000.pkl', 'rb') as f:
+# add to import our model
+import keras
+# added because dataset_5000.pkl needs to see data_utils_utf8.py and glove_utils.py
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'hownet_candidates'))
+with open('aux_files/dataset_50000.pkl', 'rb') as f:
     dataset_dict = pickle.load(f)
-with open('hownet_candidates/AGNews/word_candidates_sense_0515.pkl', 'rb') as fp:
+# changed this file
+with open('word_candidates_sense_0515.pkl', 'rb') as fp:
     word_candidate = pickle.load(fp)
 
 sys.stdout = Unbuffered(sys.stdout)
-config = tf.ConfigProto(allow_soft_placement=True)
-config.gpu_options.allow_growth = True
-K.set_session(tf.Session(config=config))
+# Commended out below
+#config = tf.ConfigProto(allow_soft_placement=True)
+#config.gpu_options.allow_growth = True
+#K.set_session(tf.Session(config=config))
 # os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 parser = argparse.ArgumentParser(
@@ -40,8 +46,9 @@ parser.add_argument('-m', '--model',
                     default='word_lstm')
 parser.add_argument('-d', '--dataset',
                     help='Data set',
-                    choices=['imdb', 'agnews', 'yahoo', 'yahoo_csv'],
-                    default='agnews')
+                    # changed choices and default to IMDB instead of AG News
+                    choices=['imdb'],
+                    default='imdb')
 parser.add_argument('-l', '--level',
                     help='The level of process dataset',
                     choices=['word', 'char'],
@@ -51,7 +58,7 @@ parser.add_argument('-l', '--level',
 def write_origin_input_texts(origin_input_texts_path, test_texts, test_samples_cap=None):
     if test_samples_cap is None:
         test_samples_cap = len(test_texts)
-    with open(origin_input_texts_path, 'a') as f:
+    with open(origin_input_texts_path, 'a', encoding='utf-8') as f:
         for i in range(test_samples_cap):
             f.write(test_texts[i] + '\n')
 
@@ -73,24 +80,24 @@ def fool_text_classifier():
             x_train, y_train, x_test, y_test = word_process(train_texts, train_labels, test_texts, test_labels, dataset)
         elif args.level == 'char':
             x_train, y_train, x_test, y_test = char_process(train_texts, train_labels, test_texts, test_labels, dataset)
-    elif dataset == 'agnews':
-        train_texts, train_labels, test_texts, test_labels = split_agnews_files()
-        if args.level == 'word':
-            x_train, y_train, x_test, y_test = word_process(train_texts, train_labels, test_texts, test_labels, dataset)
-        elif args.level == 'char':
-            x_train, y_train, x_test, y_test = char_process(train_texts, train_labels, test_texts, test_labels, dataset)
-    elif dataset == 'yahoo':
-        train_texts, train_labels, test_texts, test_labels = split_yahoo_files()
-        if args.level == 'word':
-            x_train, y_train, x_test, y_test = word_process(train_texts, train_labels, test_texts, test_labels, dataset)
-        elif args.level == 'char':
-            x_train, y_train, x_test, y_test = char_process(train_texts, train_labels, test_texts, test_labels, dataset)
-    elif dataset == 'yahoo_csv':
-        train_texts, train_labels, test_texts, test_labels = split_yahoo_csv_files()
-        if args.level == 'word':
-            x_train, y_train, x_test, y_test = word_process(train_texts, train_labels, test_texts, test_labels, dataset)
-        elif args.level == 'char':
-            x_train, y_train, x_test, y_test = char_process(train_texts, train_labels, test_texts, test_labels, dataset)
+    # elif dataset == 'agnews':
+    #     train_texts, train_labels, test_texts, test_labels = split_agnews_files()
+    #     if args.level == 'word':
+    #         x_train, y_train, x_test, y_test = word_process(train_texts, train_labels, test_texts, test_labels, dataset)
+    #     elif args.level == 'char':
+    #         x_train, y_train, x_test, y_test = char_process(train_texts, train_labels, test_texts, test_labels, dataset)
+    # elif dataset == 'yahoo':
+    #     train_texts, train_labels, test_texts, test_labels = split_yahoo_files()
+    #     if args.level == 'word':
+    #         x_train, y_train, x_test, y_test = word_process(train_texts, train_labels, test_texts, test_labels, dataset)
+    #     elif args.level == 'char':
+    #         x_train, y_train, x_test, y_test = char_process(train_texts, train_labels, test_texts, test_labels, dataset)
+    # elif dataset == 'yahoo_csv':
+    #     train_texts, train_labels, test_texts, test_labels = split_yahoo_csv_files()
+    #     if args.level == 'word':
+    #         x_train, y_train, x_test, y_test = word_process(train_texts, train_labels, test_texts, test_labels, dataset)
+    #     elif args.level == 'char':
+    #         x_train, y_train, x_test, y_test = char_process(train_texts, train_labels, test_texts, test_labels, dataset)
 
     # Write clean examples into a txt file
     clean_texts_path = r'./fool_result/{}/clean_{}.txt'.format(dataset, str(clean_samples_cap))
@@ -103,14 +110,14 @@ def fool_text_classifier():
     if args.model == "word_cnn":
         model = word_cnn(dataset)
     elif args.model == "word_bdlstm":
-        model = bd_lstm(dataset)
+        model = keras.models.load_model('bilstm_imdb.keras')
     elif args.model == "char_cnn":
         model = char_cnn(dataset)
     elif args.model == "word_lstm":
         model = lstm(dataset)
     model_path = r'./runs/{}/{}.dat'.format(dataset, args.model)
-    # model_path = r'./runs/{}/retrain/ours/2000_adversarials/{}.dat'.format(dataset, args.model)
-    model.load_weights(model_path)
+    if args.model != "word_bdlstm":
+        model.load_weights(model_path)
     print('model path:', model_path)
 
     # evaluate classification accuracy of model on clean samples
@@ -132,11 +139,13 @@ def fool_text_classifier():
     bigram_rate_list = []
     USE_score_list = []
 
-    start_cpu = time.clock()
+    start_cpu = time.perf_counter()
     adv_text_path = r'./fool_result/{}/{}/adv_{}.txt'.format(dataset, args.model, str(clean_samples_cap))
     change_tuple_path = r'./fool_result/{}/{}/change_tuple_{}.txt'.format(dataset, args.model, str(clean_samples_cap))
-    # file_1 = open(adv_text_path, "a")
-    # file_2 = open(change_tuple_path, "a")
+    # Make the OS mapth
+    os.makedirs(os.path.dirname(adv_text_path), exist_ok=True)
+    file_1 = open(adv_text_path, "a", encoding='utf-8')
+    file_2 = open(change_tuple_path, "a", encoding='utf-8')
     for index, text in enumerate(test_texts[: clean_samples_cap]):
         sub_rate = 0
         NE_rate = 0
@@ -167,7 +176,7 @@ def fool_text_classifier():
             file_2.write(str(index) + str(change_tuple_list) + '\n')
         # file_1.write(text + " sub_rate: " + str(sub_rate) + "; NE_rate: " + str(NE_rate) + "\n")
         file_1.write(text + "\n")
-    end_cpu = time.clock()
+    end_cpu = time.perf_counter()
     print('CPU second:', end_cpu - start_cpu)
     mean_sub_word = sum(sub_word_list) / len(sub_word_list)
     mean_fool_rate = successful_perturbations / total_perturbated_text

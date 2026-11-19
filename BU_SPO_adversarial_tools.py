@@ -1,22 +1,24 @@
 import sys
-import keras
+# import keras
 import spacy
 import numpy as np
 import tensorflow as tf
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 from config import config
-from keras import backend as K
+# commented out
+# from keras import backend as K
 from BU_SPO_paraphrase import _compile_perturbed_tokens, PWWS
 from word_level_process import text_to_vector
 from char_level_process import doc_process, get_embedding_dict
 from evaluate_word_saliency import evaluate_word_saliency
-from keras.backend.tensorflow_backend import set_session
+# from keras.backend.tensorflow_backend import set_session
 from unbuffered import Unbuffered
 
 sys.stdout = Unbuffered(sys.stdout)
 # nlp = spacy.load('en', tagger=False, entity=False)
-nlp = spacy.load('en_core_web_lg')
+# lg -> sm
+nlp = spacy.load('en_core_web_sm')
 
 
 
@@ -33,11 +35,9 @@ class ForwardGradWrapper:
             - Embedding is the first layer
             - Model output is a scalar (logistic regression)
         '''
-        input_tensor = model.input
 
         self.model = model
-        self.input_tensor = input_tensor
-        self.sess = K.get_session()
+        # self.sess = K.get_session()
 
     def predict_prob(self, input_vector):
         prob = self.model.predict(input_vector).squeeze()
