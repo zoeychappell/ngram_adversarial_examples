@@ -42,7 +42,8 @@ def evaluate_word_saliency(doc, grad_guide, tokenizer, input_y, dataset, level):
         for i, c in enumerate(doc.text):
             if i >= max_len:
                 break
-            if c is not ' ':
+            # Changed from 'is not' to '!+'
+            if c !=' ':
                 without_word_vector[0][i] = 0
             else:
                 find_a_word = True
